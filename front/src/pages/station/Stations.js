@@ -168,7 +168,8 @@ class Project extends React.Component {
                     err.data === undefined ? err : err.data._error_message
                 );
             } else {
-
+                console.log(result);
+                    
                 that.setState({ data: result, isLoaderAPI: true });
             }
         });
@@ -176,8 +177,6 @@ class Project extends React.Component {
             if (err) {
                 Notification("error", "Error", err.data === undefined ? err : err.data._error_message);
             } else {
-                console.log(result);
-
                 that.setState({ listSeed: result });
             }
         });
@@ -185,8 +184,6 @@ class Project extends React.Component {
             if (err) {
                 Notification("error", "Error", err.data === undefined ? err : err.data._error_message);
             } else {
-                console.log(result);
-
                 that.setState({ listGateWay: result });
             }
         });

@@ -3,7 +3,6 @@ import { Col, Card, CardBody, CardHeader, Row, Media } from "reactstrap";
 import { Slack, TrendingUp, Zap } from "react-feather";
 import './Db.css';
 import './DomCssTable.css';
-import img1 from './icon/ph.jpg'
 import { Droplet, Thermometer, Activity, Square, AlertTriangle } from "react-feather";
 class Statistics extends React.Component {
   // ---------------------------
@@ -17,8 +16,6 @@ class Statistics extends React.Component {
   // }
   // -------------------------
   ConvertHum1() {
-    console.log(this.props.info.status.min_hum);
-    console.log(this.props.data.H1);
     if (this.props.data.H1 >= this.props.info.status.min_hum && this.props.data.H1 < this.props.info.status.max_hum) {
 
       return "medium_sensor";
@@ -283,8 +280,6 @@ class Statistics extends React.Component {
   }
   render() {
     const { value_sensor, showT, data, info } = this.props;
-    console.log(`static-> render-> data`, data);
-    console.log(`static-> render->info`, info);
 
     return (
       <div className="w-100">

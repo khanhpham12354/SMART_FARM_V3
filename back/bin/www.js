@@ -29,20 +29,29 @@ client.on('connect', function () {
   console.log("connected!!!");
   client.subscribe('send_data', function (err) {
     if (err) throw err;
-  })
+  });
+  client.subscribe('control_status',{qos:1});
 });
 
 client.on('message', async function (topic, message) {
-  let data = service.convertData(JSON.parse(message));
-  io.sockets.emit('farm_'+data.sub_id, data);
+  let data = JSON.parse(message);
   // console.log(data);
+  if(topic ==="send_data") {
+    await service.saveData(data);
+    io.sockets.emit('farm_'+data.GW_name, data);
+  }
+  if(topic ==="control_status") {
+    io.sockets.emit('controller_'+data.id, data);
+  }
 });
 
 io.on('connection', function (socket) {
-    socket.on("controller", async function (data) {
-      console.log(JSON.stringify(data));
-      client.publish("control", JSON.stringify(data))
-    });
+  // let sub_id = socket.handshake.query.sub_id;
+  // console.log("Query: ", socket.handshake.query.sub_id);
+  socket.on("controller", async function (data) {
+    // console.log(data)
+    client.publish("control", JSON.stringify(data))
+  });
 });
 
 /** Listen on provided port, on all network interfaces.*/

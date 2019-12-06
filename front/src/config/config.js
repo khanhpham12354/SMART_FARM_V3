@@ -1,11 +1,11 @@
 const config_network = {
 	// "host": "http://uy-private-server.tinasoft.com.vn",
 	//  "host": "http://iot-demo.tinasoft.com.vn",
-	host : 'http://212.237.29.129/',
+	host : 'http://212.237.29.129',
 	port : '8001'
 };
 const config_socket = {
-	ip : 'http://212.237.29.129/'
+	ip : 'http://212.237.29.129:8001'
 };
 
 const api_path = config_network.host + ':' + config_network.port + '/api/v1/';
