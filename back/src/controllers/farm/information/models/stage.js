@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const StageSchema = new mongoose.Schema({
+    name: {type: String, required: true},
     stage_days: {
         type: Number,
         required: true

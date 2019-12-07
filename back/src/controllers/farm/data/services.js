@@ -13,15 +13,9 @@ async function getSubData(req, res){
 
 async function getSubDataById(req, res) {
     try{
-        let results = [];
         if(!req.user.farms.includes(req.params.sub_id)) return response.forbidden(res, "Permission Denied!!!");
-        let info = await Data.find({sub_id: req.params.sub_id}).limit(20).sort({$natural:-1}).lean();
-        for(let i=0;i<info.length;i++){
-            info[i].time = info[i].time.getTime();
-            // delete info[i].time;
-            results.push(info[i])
-        }
-        return response.ok(res, results);
+        let info = await Data.find({sub_id: req.params.sub_id}).limit(1).sort({$natural:-1}).lean();
+        return response.ok(res, info);
     }catch(err){
         return response.internal(res, err)
     }
@@ -42,7 +36,7 @@ async function getSubDataByIdAndTime(req, res) {
         }
         return response.ok(res, full_data);
     }catch(err){
-        console.log(err)
+        console.log(err);
         return response.internal(res, err)
     }
 }

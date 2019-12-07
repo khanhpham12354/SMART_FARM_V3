@@ -8,13 +8,13 @@ otplib.authenticator.options = {
     step: configOTP.step,
 };
 
-function generateOTP(phoneNumber){
-    let secretKey = configOTP.key + phoneNumber;
+function generateOTP(phoneNumber, code){
+    let secretKey = configOTP.key + phoneNumber + code;
     return otplib.authenticator.generate(secretKey);
 }
 
-function verifyOTP(token, phoneNumber){
-    let secretKey = configOTP.key + phoneNumber;
+function verifyOTP(token, phoneNumber, code){
+    let secretKey = configOTP.key + phoneNumber + code;
     // console.log(otplib.authenticator.check(token, secretKey))
     return otplib.authenticator.check(token, secretKey);
 }

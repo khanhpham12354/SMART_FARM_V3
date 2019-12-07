@@ -1,22 +1,21 @@
-
 /** Module dependencies.*/
 const app = require('../app');
 const http = require('http');
 const mqtt = require('mqtt');
 const config = require('../config/network');
 const logColor = require('../src/untils/logColor');
-const service = require('./services/farm');
+const service = require('./services/services');
+const fakeData = require('./services/socket_data').farm;
 
 /** Get port from environment and store in Express.*/
 let port = normalizePort(process.env.PORT || config.port);
 app.set('port', port);
 
-let UID_DB = require('../config/seeds').gateway;
-
 /** Create HTTP server.*/
 let server = http.createServer(app);
 const io = require('socket.io')(server);
 
+/** MQTT setup.*/
 // let client = mqtt.connect('mqtt://212.237.29.129');
 let client = mqtt.connect('mqtt://212.237.29.129', {
       username: 'nhungdaika',
@@ -24,7 +23,7 @@ let client = mqtt.connect('mqtt://212.237.29.129', {
       port: 1883
     }
 );
-
+/** MQTT connection.*/
 client.on('connect', function () {
   console.log("connected!!!");
   client.subscribe('send_data', function (err) {
@@ -32,22 +31,30 @@ client.on('connect', function () {
   });
   client.subscribe('control_status',{qos:1});
 });
-
+/** MQTT message.*/
 client.on('message', async function (topic, message) {
   let data = JSON.parse(message);
   // console.log(data);
   if(topic ==="send_data") {
     await service.saveData(data);
-    io.sockets.emit('farm_'+data.GW_name, data);
+    io.sockets.emit('farm_'+data.sub_id, data);
   }
   if(topic ==="control_status") {
     io.sockets.emit('controller_'+data.id, data);
   }
 });
 
+/** Socket.io connection.*/
 io.on('connection', function (socket) {
-  // let sub_id = socket.handshake.query.sub_id;
-  // console.log("Query: ", socket.handshake.query.sub_id);
+  let sub_id = socket.handshake.query.sub_id;
+  // setInterval(async function(){
+  //   let data = fakeData(sub_id);
+  //   let topic = "farm_"+data.sub_id;
+  //   // await service.saveData(data);
+  //   socket.emit(topic, data);
+  //   // console.log(data);
+  // }, 3000);
+  // console.log(fakeData(sub_id));
   socket.on("controller", async function (data) {
     // console.log(data)
     client.publish("control", JSON.stringify(data))

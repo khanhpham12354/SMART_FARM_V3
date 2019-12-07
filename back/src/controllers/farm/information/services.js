@@ -35,7 +35,6 @@ async function getSubById(req, res) {
         let full_info = await serializer.convertOutput(info);
         return response.ok(res, full_info);
     }catch(err){
-        console.log(err)
         return response.internal(res, err)
     }
 }
@@ -44,7 +43,6 @@ async function getSubById(req, res) {
 async function newSubstation(req, res) {
     try{
         let data = req.body;
-        // console.log(req.body);
         for(let i=1;i<5;i++){
             if(!data[validator_farm[i]]) return response.badData(res, `${validator_farm[i]} is required!!!`)
         }
@@ -55,6 +53,11 @@ async function newSubstation(req, res) {
         if(!gateway.includes(data.sub_id)) return response.badData(res, "Sensor doesn't exist!!!");//2
         let check_sub = await Information.findOne({sub_id: data.sub_id});
         if(check_sub) return response.badRequest(res,"Sensor has already in use!!!");
+        data.stage_1.name = "stage_1";
+        data.stage_2.name = "stage_2";
+        data.stage_3.name = "stage_3";
+        data.stage_4.name = "stage_4";
+
         let stage_1 = await Stage.create(data.stage_1);
         let stage_2 = await Stage.create(data.stage_2);
         let stage_3 = await Stage.create(data.stage_3);
@@ -79,47 +82,6 @@ async function newSubstation(req, res) {
         return response.internal(res, err)
     }
 }
-/** Creat new farm*/
-// async function newSubstation(req, res) {
-//     try{
-//         console.log(req.body);
-//         let data_seed={
-//             seed: req.body.seed,
-//             stage_1_days: req.body.stage_1_days,
-//             stage_2_days: req.body.stage_2_days,
-//             stage_3_days: req.body.stage_3_days,
-//             stage_4_days: req.body.stage_4_days,
-//             stage_1: req.body.stage_1,
-//             stage_2: req.body.stage_2,
-//             stage_3: req.body.stage_3,
-//             stage_4: req.body.stage_4,
-//         };
-//         if(!req.user.is_admin) return response.forbidden(res,"Permission Denied!!!");//1
-//
-//         if(!gateway.includes(req.body.sub_id)) return response.badData(res, "Sensor doesn't exist!!!");//2
-//         let check_sub = await Information.findOne({sub_id: req.body.sub_id});
-//         if(check_sub) return response.badRequest(res,"Sensor has already in use!!!");
-//         if(!req.body.name) return response.badData(res, "Name is required.");
-//         // let seeds = await mongoose.models['farm_seeds_config'].find({}).distinct("seed");
-//         // if(!seeds.includes(req.body.seed.seed)) return response.badData(res, "Seed doesn't support!!!");
-//
-//         let new_seed = await Seed.create(data_seed);
-//         let new_farm = {
-//             name: req.body.name,
-//             sub_id: req.body.sub_id,
-//             start_plant: req.body.started_plant,
-//             owner_id: req.user._id,
-//             seed: new_seed._id
-//         };
-//         let farm = await Information.create(new_farm);
-//         await User.updateMany({is_admin:true},{ $push: {"farms": farm.sub_id}});
-//         let full_info = await serializer.convertOutput(farm);
-//         return response.created(res, full_info)
-//     }catch(err){
-//         console.log(err);
-//         return response.internal(res, err)
-//     }
-// }
 
 /** Edit information of farm*/
 async function editSub(req, res){
@@ -136,14 +98,16 @@ async function editSub(req, res){
             started_plant: change_element.started_plant,
             address: change_element.address
         };
+        console.log(change_element)
         let farm = await Information.findOneAndUpdate({sub_id:req.params.sub_id}, data_seed, {new:true});
         for(let i=1;i<5;i++){
-            if(!change_element[validator_farm[i]]) return response.badData(res, `${validator_farm[i]} is required!!!`);
+            // if(!change_element[validator_farm[i]]) return response.badData(res, `${validator_farm[i]} is required!!!`);
             await Stage.findByIdAndUpdate(farm["stage_"+i], change_element["stage_"+i]);
         }
         let full_info = await serializer.convertOutput(farm);
         response.ok(res, full_info)
     }catch (err) {
+        console.log(err);
         response.internal(res, err)
     }
 }
@@ -193,18 +157,33 @@ async function deleteSub(req, res){
 }
 
 /** Check input*/
+// function checkInput(data, i){
+//     try {
+//         for(let j=0;j<validator.length;j++){
+//             if(!data["stage_"+i][validator[j]]) throw Error(`stage_${i}.${validator[j]} is required!!!`)
+//         }
+//         if(parseInt(data["stage_"+i].stage_days)<0) throw Error("Stage < 0");
+//         if(parseInt(data["stage_"+i].min_temp) >= parseInt(data["stage_"+i].max_temp)) throw Error(`stage_${i}.temperature: min>max`);
+//         if(parseInt(data["stage_"+i].min_light) >= parseInt(data["stage_"+i].max_light)) throw Error(`stage_${i}.light: min>max`);
+//         if(parseInt(data["stage_"+i].min_PH) >= parseInt(data["stage_"+i].max_PH)) throw Error(`stage_${i}.pH: min>max`);
+//         if(parseInt(data["stage_"+i].min_soil_moisture) >= parseInt(data["stage_"+i].max_soil_moisture)) throw Error(`stage_${i}.soil_moisture: min>max`);
+//         if(parseInt(data["stage_"+i].min_hum) >= parseInt(data["stage_"+i].max_hum)) throw Error(`stage_${i}.humidity: min>max`);
+//     }catch (err) {
+//         throw err
+//     }
+// }
+
 function checkInput(data, i){
     try {
-        // if(i==2)
         for(let j=0;j<validator.length;j++){
             if(!data["stage_"+i][validator[j]]) throw Error(`stage_${i}.${validator[j]} is required!!!`)
         }
         if(data["stage_"+i].stage_days<0) throw Error("Stage < 0");
-        if(data["stage_"+i].min_temp >= data["stage_"+i].max_temp) throw Error("min>max");
-        if(data["stage_"+i].min_light >= data["stage_"+i].max_light) throw Error("min>max");
-        if(data["stage_"+i].min_PH >= data["stage_"+i].max_PH) throw Error("min>max");
-        if(data["stage_"+i].min_soil_moisture >= data["stage_"+i].max_soil_moisture) throw Error("min>max");
-        if(data["stage_"+i].min_hum >= data["stage_"+i].max_hum) throw Error("min>max");
+        if(data["stage_"+i].min_temp >= data["stage_"+i].max_temp) throw Error(`stage_${i}.temperature: min>max`);
+        if(data["stage_"+i].min_light >= data["stage_"+i].max_light) throw Error(`stage_${i}.light: min>max`);
+        if(data["stage_"+i].min_PH >= data["stage_"+i].max_PH) throw Error(`stage_${i}.pH: min>max`);
+        if(data["stage_"+i].min_soil_moisture >= data["stage_"+i].max_soil_moisture) throw Error(`stage_${i}.soil_moisture: min>max`);
+        if(data["stage_"+i].min_hum >= data["stage_"+i].max_hum) throw Error(`stage_${i}.humidity: min>max`);
     }catch (err) {
         throw err
     }

@@ -1,7 +1,7 @@
 let gateway = ['G00', 'G01', 'G02', 'G03', 'G04', 'G05', 'G06', 'G07', 'G08','G09', 'G10'];
 let status = ['00', '01', '10', '11', '20', '21', '30', '31', 'A', 'O'];
-function farm() {
-    let id = gateway[Math.floor(Math.random() * gateway.length)];
+function farm(sub_id) {
+    // let id = gateway[Math.floor(Math.random() * gateway.length)];
     let T1 = Math.floor(Math.random() * (40 - 20) + 20);
     let T2 = Math.floor(Math.random() * (40 - 20) + 20);
     let T3 = Math.floor(Math.random() * (40 - 20) + 20);
@@ -44,7 +44,7 @@ function farm() {
     let SM24 = Math.floor(Math.random() * 100);
     let SM25 = Math.floor(Math.random() * 100);
     return{
-        sub_id: id,
+        sub_id: sub_id,
         T1: T1, T2: T2, T3: T3, T4: T4,
         L1: L1, L2: L2, L3: L3, L4: L4,
         H1: H1, H2: H2, H3: H3, H4: H4,

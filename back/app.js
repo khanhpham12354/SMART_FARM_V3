@@ -32,7 +32,7 @@ mongoose.connect(configDB.setting.url, configDB.options).then(
 // require('./serial-port');
 
 /**Init*/
-let init = require('./bin/services/init');
-init.newSeed().then().catch(e => console.log(e));
+// let init = require('./bin/services/init');
+// init.newSeed().then().catch(e => console.log(e));
 
 module.exports = app;
